@@ -1,0 +1,521 @@
+{
+  "name": "MOM'S MAGIC RESTAURANT WORKFLOW",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -48,
+        -96
+      ],
+      "id": "1ddcae43-4117-4ad1-931a-7a4accfdc01b",
+      "name": "When chat message received",
+      "webhookId": "d8f54f39-103e-4685-a2f6-b125303fd9a9"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "you are a customer support agent, that responds to customer queries regarding the mom's magic restaurant\n\nFollow the rules below:\n\n- For every customer complaints, please politely apologise to the customer and offer them 10% discount in their next order which will be credited to their account in form of coupon code. (keep the message short)\n\n- For every customer appreciation, you should thank the customer for the appreciation and provide them 5% discount in their next order which will be credited to their account in form of coupon code. (keep the message short)\n\n- Do not add anything in the feedback sheet if the customer is just asking to show menu or placing any order.\n\n- Use \"Get Inventory\" to fetch the latest inventory data from the Inventory sheet.\n\n- Do not show the stock of the food items or let the customer know how many are left. If the customer is asking more than the current stock, just politely suggest them some other dish.\n\n- When customer ask for the menu, just show the customer Food item and price in form of a table. (Do not show the stock to the customer).\n\n- Use \"Add Orders\" tool to add orders in the Orders sheet based on customer's request. You need to update only Name, Item, and Quantity fields based on customer's message. Ask the customer politely if any field is missing in customer's message. No additional data required from customer.\n\n- If customer orders some item that is out of stock or more than the current stock, then please let the customer know in a very polite way, and suggest Chef's special Masala Dosa item instead.\n\n- Once order is confirmed, please ask the customer to make the payment at (UPI ID )momsmagicblr@upi to place the order.\n\n- Once order is added, please use \"update inventory\" tool to reduce the stock for the ordered food item. Example: If customer has ordered 2 Veg Sandwich, then you should deduct 2 from the Veg Sandwich's stock.\n\n- Use \"Add Feedback\" to add the customer's feedback (in the same form sent by customer) in the feedback sheet. You have to add Customer's name in the Name field (Ask politely if the customer has not given his/her name). Do not ask any other data from customer. You also Category field as either Positive or Negative in the sheet. Also the exact response that you have sent to the customer as a part of Resolution in the Resolution field.\n\n- Use \"Policies RAG\" tool only in order to answer customer queries related to Mom's Magic restaurant policies.\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        160,
+        -96
+      ],
+      "id": "de9c32b4-338b-4f90-bba8-56e99d9fcbd4",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        112
+      ],
+      "id": "112c5c36-ca70-44da-82da-2785512e1c4c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "MHprPFM1NN5jZjuZ",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        112
+      ],
+      "id": "062d0fb6-65de-4f51-9eed-d78f220eda17",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "https://docs.google.com/document/d/1TpjizM_aNIcL_EqJDVP_lOFnWUD2nBuePtYDdmvR84s/edit?usp=sharing"
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        768,
+        112
+      ],
+      "id": "3bddaa6b-4a67-4399-826a-9b1772bdf3ee",
+      "name": "momsmagic-policies",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "eR7CMXydshpJyktU",
+          "name": "Google Docs OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw",
+          "mode": "list",
+          "cachedResultName": "MOM'S MAGIC Master Dashboard",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "inventry",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        112
+      ],
+      "id": "fdf2995a-73f2-448d-9e05-fb95619a51c7",
+      "name": "Get Inventory",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HbqhtSXUcxz0QJgT",
+          "name": "mm-restaurant"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw",
+          "mode": "list",
+          "cachedResultName": "MOM'S MAGIC Master Dashboard",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 493443791,
+          "mode": "list",
+          "cachedResultName": "orders",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw/edit#gid=493443791"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name', ``, 'string') }}",
+            "Item": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Item', ``, 'string') }}",
+            "Quantity": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Quantity', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Item",
+              "displayName": "Item",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        496,
+        128
+      ],
+      "id": "5e2e3f6f-d61f-4a8a-bf91-6918d8ad053b",
+      "name": "Add order",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HbqhtSXUcxz0QJgT",
+          "name": "mm-restaurant"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw",
+          "mode": "list",
+          "cachedResultName": "MOM'S MAGIC Master Dashboard",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "inventry",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Food Item": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Food_Item__using_to_match_', ``, 'string') }}",
+            "Stock": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Stock', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "Food Item"
+          ],
+          "schema": [
+            {
+              "id": "Food Item",
+              "displayName": "Food Item",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Price",
+              "displayName": "Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Stock",
+              "displayName": "Stock",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        128
+      ],
+      "id": "b498e1a7-e614-4a13-9074-bf507f1b396c",
+      "name": "update inventry",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "px9g2ki3ycs0m0xh",
+          "name": "momsmagicrestaurnt"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://prod-1-data.ke.pinecone.io/assistant/chat/momsmagic-restaurant",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Api-Key",
+              "value": "pcsk_35jXt_RjCC6TEWPvBnCFVzDKxnWfTvgHp1uASqrMtLJGr8B3VG1ADcNpu6dMuqu4x7TiP"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $fromAI('searchQuery') }}\"\n\n    }\n  ],\n  \"stream\": false,\n  \"model\": \"gpt-4o\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        800,
+        -32
+      ],
+      "id": "bc3a1811-2b4c-4db6-a9a7-cb6ba7c6566b",
+      "name": "Policies RAG"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw",
+          "mode": "list",
+          "cachedResultName": "MOM'S MAGIC Master Dashboard",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2141513489,
+          "mode": "list",
+          "cachedResultName": "feedback",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Wkr1gRhvGiixj_JvufDovNwhVlJi8B4JE32-Ika6Nw/edit#gid=2141513489"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name', ``, 'string') }}",
+            "Feedback": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Feedback', ``, 'string') }}",
+            "Category": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Category', ``, 'string') }}",
+            "Resolution": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Resolution', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Feedback",
+              "displayName": "Feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resolution",
+              "displayName": "Resolution",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        304,
+        112
+      ],
+      "id": "99538e82-f096-465b-b5af-78467bb6ac7f",
+      "name": "Add Feedback",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HbqhtSXUcxz0QJgT",
+          "name": "mm-restaurant"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "momsmagic-policies": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Inventory": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add order": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update inventry": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Policies RAG": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Feedback": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "e87ebcd8-51ce-420d-9900-014a27e2025d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e0ece010e462925d9fce06e03e94245f152c4cab40c09c2e509f3432e714e09f"
+  },
+  "id": "922eLNaXkUKyHRMy",
+  "tags": []
+}
